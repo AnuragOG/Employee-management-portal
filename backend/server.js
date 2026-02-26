@@ -27,9 +27,17 @@ app.use('/api/dashboard', require('./routes/dashboard'));
 
 const PORT = process.env.PORT || 5000;
 
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => {
-    console.log('MongoDB connected');
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-  })
-  .catch(err => console.error('MongoDB connection error:', err));
+mongoose.connect(process.env.MONGODB_URI, {
+  serverSelectionTimeoutMS: 5000 // Stop trying after 5 seconds
+})
+.then(() => {
+  console.log("MongoDB Connected...");
+  // Start server ONLY after DB is ready
+  app.listen(PORT, () => console.log(`Server on port ${PORT}`));
+})
+.catch(err => {
+  console.error("Database connection error:", err.message);
+  // Start the server anyway so Render sees it's "live," 
+  // or let it crash with a clear message.
+  process.exit(1); 
+});
